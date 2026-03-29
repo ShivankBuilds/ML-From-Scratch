@@ -1,54 +1,65 @@
-import numpy as np 
-
-
+import numpy as np
 import math
 
-x_train=np.array([1.0,2.0])
-y_train=np.array([300.0,500.0])
-def compute_cost(x,y,w,b):
-    m=x.shape[0]
-    cost=0
-    for i in range(m):
-        fwb=((w*x[i]+b)-y[i])**2
-        cost=cost+fwb
-    total_cost=cost/(2*m)
+# Data
+x_train = np.array([1.0, 2.0])
+y_train = np.array([300.0, 500.0])
 
-    return total_cost
-def compute_gradient(x,y,w,b):
-    m=x.shape[0]    
-    dj_dw=0
-    dj_db=0
+# Cost function
+def compute_cost(x, y, w, b):
+    m = x.shape[0]
+    cost = 0
     for i in range(m):
-        error=(w*x[i]+b)-y[i]
-        dj_dbi=error
-        dj_dw=dj_dw+error*x[i]
-        dj_db=dj_db+error
-    dj_dw=dj_dw/m
-    dj_db=dj_db/m
-    return dj_dw,dj_db
+        error = (w*x[i] + b - y[i])**2
+        cost += error
+    return cost / (2*m)
+
+# Gradient
+def compute_gradient(x, y, w, b):
+    m = x.shape[0]
+    dj_dw = 0
+    dj_db = 0
+    for i in range(m):
+        error = w*x[i] + b - y[i]
+        dj_dw += error * x[i]
+        dj_db += error
+    dj_dw /= m
+    dj_db /= m
+    return dj_dw, dj_db
+
+# Gradient Descent
 def gradient_desent(x, y, w_in, b_in, alpha, num_iters, cost_function, gradient_function):
+    J_history = []
+    P_history = []
+    w = w_in
+    b = b_in
 
-    J_history=[]
-    P_history=[]        
-    w=w_in
-    b=b_in
     for i in range(num_iters):
-        dj_dw,dj_db=gradient_function(x,y,w,b)
+        dj_dw, dj_db = gradient_function(x, y, w, b)
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
 
-        w=w-alpha*dj_dw
-        b=b-alpha*dj_db
+        # Save cost and parameters
+        J_history.append(cost_function(x, y, w, b))
+        P_history.append([w, b])
 
-        if i<10000:
-            J_history.append(cost_function(x,y,w,b))
-            P_history.append([w,b])
-        if i%math.ceil(num_iters/10)==0:
+        # Print every 10% of iterations
+        if i % math.ceil(num_iters / 10) == 0:
             print(f"Iteration {i:4}: Cost {J_history[-1]:.4f}, "
-                  "dj_dw: {dj_dw: 0.3e}, dj_db: {dj_db: 0.3e}")
-    return w, b, J_history, P_history   
+                  f"dj_dw: {dj_dw:0.3e}, dj_db: {dj_db:0.3e}")
+
+    return w, b, J_history, P_history
+
+# Hyperparameters
 w_init = 0
 b_init = 0
 iterations = 1000
 tmp_alpha = 1.0e-2
-w_final, b_final, J_hist, P_hist =gradient_desent(x_train ,y_train, w_init, b_init, tmp_alpha, 
-                                                    iterations, compute_cost, compute_gradient)
+
+# Run gradient descent
+w_final, b_final, J_hist, P_hist = gradient_desent(
+    x_train, y_train, w_init, b_init, tmp_alpha, iterations,
+    compute_cost, compute_gradient
+)
+
 print(f"(w,b) found by gradient descent: ({w_final:8.4f},{b_final:8.4f})")
