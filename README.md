@@ -1,1 +1,1 @@
-# -Linear-regresion-without-cost-fucnction-
+# Linear-regresion-without-cost-function-
