@@ -1,4 +1,4 @@
-# Linear-regresion-without-cost-function
+# Ml-from-scratch
 import numpy as np 
 import matplotlib.pyplot as plt
 
