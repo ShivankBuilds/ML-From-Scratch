@@ -1,0 +1,127 @@
+import numpy as np
+
+# ==========================================
+# 📌 1. Training Data
+# ==========================================
+# Features: [size, bedrooms, floors, age]
+X = np.array([
+    [2104, 5, 1, 45],
+    [1416, 3, 2, 40],
+    [852,  2, 1, 35]
+], dtype=float)
+
+# Target (price)
+y = np.array([460, 232, 178], dtype=float)
+
+print("X shape:", X.shape)
+print("y shape:", y.shape)
+
+
+# ==========================================
+# 📌 2. Prediction Function
+# ==========================================
+def predict(X, w, b):
+    """
+    Vectorized prediction
+    X: (m, n)
+    w: (n,)
+    b: scalar
+    Returns: (m,)
+    """
+    return X @ w + b
+
+
+# ==========================================
+# 📌 3. Cost Function (MSE)
+# ==========================================
+def compute_cost(X, y, w, b):
+    """
+    Mean Squared Error Cost
+    """
+    m = X.shape[0]
+    predictions = predict(X, w, b)
+    error = predictions - y
+    cost = (error @ error) / (2 * m)
+    return cost
+
+
+# ==========================================
+# 📌 4. Gradient Function (Vectorized)
+# ==========================================
+def compute_gradient(X, y, w, b):
+    """
+    Computes gradients using vectorization
+    """
+    m = X.shape[0]
+
+    predictions = predict(X, w, b)
+    error = predictions - y
+
+    dj_dw = (X.T @ error) / m   # (n,)
+    dj_db = np.sum(error) / m   # scalar
+
+    return dj_db, dj_dw
+
+
+# ==========================================
+# 📌 5. Gradient Descent
+# ==========================================
+def gradient_descent(X, y, w_init, b_init, alpha, iterations):
+
+    w = w_init.copy()
+    b = b_init
+
+    J_history = []
+
+    for i in range(iterations):
+
+        # Compute gradients
+        dj_db, dj_dw = compute_gradient(X, y, w, b)
+
+        # Update parameters
+        w -= alpha * dj_dw
+        b -= alpha * dj_db
+
+        # Save cost
+        cost = compute_cost(X, y, w, b)
+        J_history.append(cost)
+
+        # Print progress
+        if i % max(1, iterations // 10) == 0:
+            print(f"Iteration {i:4d} | Cost: {cost:.4f}")
+
+    return w, b, J_history
+
+
+# ==========================================
+# 📌 6. Initialize Parameters
+# ==========================================
+w_init = np.zeros(X.shape[1])  # (n,)
+b_init = 0.0
+
+iterations = 1000
+alpha = 5e-7
+
+
+# ==========================================
+# 📌 7. Train Model
+# ==========================================
+w_final, b_final, J_hist = gradient_descent(
+    X, y,
+    w_init, b_init,
+    alpha, iterations
+)
+
+print("\nFinal Parameters:")
+print("w =", w_final)
+print("b =", round(b_final, 2))
+
+
+# ==========================================
+# 📌 8. Predictions
+# ==========================================
+predictions = predict(X, w_final, b_final)
+
+print("\nPredictions vs Actual:")
+for i in range(len(y)):
+    print(f"Predicted: {predictions[i]:.2f} | Actual: {y[i]}")
